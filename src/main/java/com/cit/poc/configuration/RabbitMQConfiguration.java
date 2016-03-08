@@ -14,11 +14,12 @@ import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
-import com.cit.poc.ListenerService;
+import com.cit.poc.SkuTransactionListener;
 
 @Configuration
 @EnableAutoConfiguration
 public class RabbitMQConfiguration {
+
     @Autowired
     private ConnectionFactory rabbitConnectionFactory;
 
@@ -36,7 +37,6 @@ public class RabbitMQConfiguration {
     public RabbitTemplate fixedReplyQRabbitTemplate() {
         RabbitTemplate template = new RabbitTemplate(this.rabbitConnectionFactory);
         template.setExchange(ex().getName());
-        template.setRoutingKey("test");
         template.setReplyAddress("my.reply.queue");
         return template;
     }
@@ -55,7 +55,9 @@ public class RabbitMQConfiguration {
         SimpleMessageListenerContainer container = new SimpleMessageListenerContainer();
         container.setConnectionFactory(this.rabbitConnectionFactory);
         container.setQueues(requestQueue());
-        container.setMessageListener(new MessageListenerAdapter(new ListenerService()));
+        container.setMaxConcurrentConsumers(1);
+        container.setConcurrentConsumers(1);
+        container.setMessageListener(new MessageListenerAdapter(new SkuTransactionListener()));
         return container;
     }
 
