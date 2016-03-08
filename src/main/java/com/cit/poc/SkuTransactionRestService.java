@@ -5,6 +5,8 @@ import java.util.UUID;
 import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
+import javax.ws.rs.container.AsyncResponse;
+import javax.ws.rs.container.Suspended;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,10 +28,25 @@ public class SkuTransactionRestService {
      * Get method for convenience
      */
     @GET
-    @Path("/{sku}/{qtdy}")
-    public String service(@PathParam("sku") String sku, @PathParam("qtdy") Integer qtdy) {
+    @Path("/async/{sku}/{qtdy}")
+    public void serviceAsync(@Suspended AsyncResponse asyncResponse, @PathParam("sku") String sku,
+            @PathParam("qtdy") Integer qtdy) {
         LOGGER.info("Receiving sku {} for stock operation {}", sku, qtdy);
         Object info = String.format("{\"sku\": %s, \"qtdy\": %d}", sku, qtdy);
-        return (String) rabbitTemplate.convertSendAndReceive("test", info, new CorrelationData(UUID.randomUUID().toString()));
+        String result = (String) rabbitTemplate.convertSendAndReceive("test", info, new CorrelationData(UUID
+                .randomUUID().toString()));
+
+        asyncResponse.resume(result);
+    }
+
+    @GET
+    @Path("/sync/{sku}/{qtdy}")
+    public String serviceSync(@PathParam("sku") String sku, @PathParam("qtdy") Integer qtdy) {
+        LOGGER.info("Receiving sku {} for stock operation {}", sku, qtdy);
+        Object info = String.format("{\"sku\": %s, \"qtdy\": %d}", sku, qtdy);
+        String result = (String) rabbitTemplate.convertSendAndReceive("test", info, new CorrelationData(UUID
+                .randomUUID().toString()));
+
+        return result;
     }
 }
