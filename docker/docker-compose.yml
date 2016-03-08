@@ -1,0 +1,10 @@
+rabbitmq:
+  image: rabbitmq:3.5.4-management
+  ports:
+    - "5672:5672"
+    - "15672:15672"
+  environment:
+    - RABBITMQ_NODENAME=rabbit@localhost
+    - RABBITMQ_DEFAULT_VHOST=dojo_vhost
+    - RABBITMQ_DEFAULT_USER=dojo
+    - RABBITMQ_DEFAULT_PASS=dojo
