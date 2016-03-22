@@ -33,8 +33,7 @@ public class SkuTransactionRestService {
             @PathParam("qtdy") Integer qtdy) {
         LOGGER.info("Receiving sku {} for stock operation {}", sku, qtdy);
         Object info = String.format("{\"sku\": %s, \"qtdy\": %d}", sku, qtdy);
-        String result = (String) rabbitTemplate.convertSendAndReceive("test", info, new CorrelationData(UUID
-                .randomUUID().toString()));
+        String result = (String) rabbitTemplate.convertSendAndReceive("test", info);
 
         asyncResponse.resume(result);
     }
