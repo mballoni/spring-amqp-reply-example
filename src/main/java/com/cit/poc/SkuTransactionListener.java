@@ -25,7 +25,7 @@ public class SkuTransactionListener {
         }
         STOCK.put(sku, value);
 
-        return "ok";
+        return sku;
     }
 
 }
